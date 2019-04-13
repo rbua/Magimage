@@ -1,7 +1,7 @@
 ﻿using Magimage.Devices.Interfaces;
 using Magimage.Filters;
 using Magimage.Filters.Helpers;
-using Magimage.Filters.Interfaces;
+using Magimage.Shaders.Interfaces;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using System;
@@ -13,7 +13,7 @@ namespace Magimage.Devices
 {
     class TaskBasedWorkflow : IComputingProcess
     {
-        public void AddFilter(ImageFilter filter)
+        public void AddFilter(IImageFilter filter)
         {
             Parallel.For(0, filter.Image.GetLinearSize(), i => filter.PerformFilter(i));
         }

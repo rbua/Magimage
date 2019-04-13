@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Magimage.Filters.Interfaces
+namespace Magimage.Shaders.Interfaces
 {
     public interface IPixelShader
     {

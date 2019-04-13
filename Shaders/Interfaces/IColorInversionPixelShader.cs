@@ -5,8 +5,8 @@ using System.Text;
 
 namespace Magimage.Shaders.Interfaces
 {
-    interface IBlackAndWhitePixelShader : IPixelShader
+    interface IColorInversionPixelShader : IPixelShader
     {
-        Rgba32 GetPixelBrighness(Rgba32 pixel);
+        Rgba32 GetInvertedPixel(Rgba32 pixel);
     }
 }

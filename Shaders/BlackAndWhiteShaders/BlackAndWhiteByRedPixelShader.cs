@@ -1,10 +1,9 @@
-﻿using Magimage.Filters.Interfaces;
-using Magimage.Shaders.Interfaces;
+﻿using Magimage.Shaders.Interfaces;
 using SixLabors.ImageSharp.PixelFormats;
 
 namespace Magimage.Shaders
 {
-    internal class BlackAndWhitePixelShader : IBlackAndWhitePixelShader
+    internal class BlackAndWhiteByRedPixelShader : IBlackAndWhitePixelShader
     {
         public Rgba32 GetPixelBrighness(Rgba32 pixel)
         {
@@ -13,8 +12,7 @@ namespace Magimage.Shaders
 
         public Rgba32 PerformShading(Rgba32 pixel)
         {
-            int colorsSum = pixel.R + pixel.G + pixel.B;
-            byte pixelBrightness = (byte)(colorsSum / 3);
+            byte pixelBrightness = pixel.R;
 
             return new Rgba32
             {

@@ -8,15 +8,15 @@ namespace Magimage.Devices
 {
     internal class ThreadBasedWorkflow : IComputingProcess
     {
-        public void AddFilter(ImageFilter filter)
+        public void AddFilter(IImageFilter filter)
         {
             for (int i = 0; i < Environment.ProcessorCount; i++)
             {
                 new Thread(() => filter.PerformFilter(3));
             }
-
         }
-        private ThreadStart CreateThreadTask(ImageFilter filter)
+
+        private ThreadStart CreateThreadTask(IImageFilter filter)
         {
             int processorsCount = Environment.ProcessorCount;
             for (int i = 0; i < processorsCount + 1; i++)

@@ -5,8 +5,8 @@ using System.Text;
 
 namespace Magimage.Shaders.Interfaces
 {
-    interface IBlackAndWhitePixelShader : IPixelShader
+    interface IColorMergePixelShader : IPixelShader
     {
-        Rgba32 GetPixelBrighness(Rgba32 pixel);
+        Rgba32 PerformShading(Rgba32 firstColor, Rgba32 secondColor, float firstColorPercent);
     }
 }

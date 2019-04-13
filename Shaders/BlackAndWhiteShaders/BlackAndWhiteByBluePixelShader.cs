@@ -1,5 +1,4 @@
-﻿using Magimage.Filters.Interfaces;
-using Magimage.Shaders.Interfaces;
+﻿using Magimage.Shaders.Interfaces;
 using SixLabors.ImageSharp.PixelFormats;
 
 namespace Magimage.Shaders

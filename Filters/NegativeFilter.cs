@@ -1,6 +1,9 @@
-﻿using Magimage.Filters.Helpers;
+﻿using ILGPU;
+using ILGPU.Runtime;
+using Magimage.Filters.Helpers;
 using Magimage.Shaders.Interfaces;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.Primitives;
 
@@ -17,14 +20,25 @@ namespace Magimage.Filters
             Shader = pixelShader;
         }
 
-        public Image<Rgba32> PerformFilter(long flatIndex)
+        public Image<Rgba32> PerformFilter(Accelerator device)
         {
-            Point pixelPosition = flatIndex.GetPointByLinearIndex(Image.Height, Image.Width);
+            var kernel = device.LoadAutoGroupedStreamKernel<Index, ArrayView<Rgba32>>(Shader.PerformShading);
+            Index size = new Index(Image.Width * Image.Height);
 
-            Rgba32 rgbaPixel = Image[pixelPosition.X, pixelPosition.Y];
-            Image[pixelPosition.X, pixelPosition.Y] = Shader.PerformShading(rgbaPixel);
+            Rgba32[] pixelArray = Image.GetPixelSpan().ToArray();
 
-            return this.Image;
+            using (var buffer = device.Allocate<Rgba32>(Image.Width * Image.Height))
+            {
+                buffer.CopyFrom(pixelArray, 0, Index.Zero, pixelArray.Length);
+
+                kernel(size, buffer);
+                device.Synchronize();
+
+                pixelArray = buffer.GetAsArray();
+                Image = SixLabors.ImageSharp.Image.LoadPixelData<Rgba32>(pixelArray, Image.Width, Image.Height);
+            }
+
+            return Image;
         }
     }
 }

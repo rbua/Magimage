@@ -1,45 +1,61 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using ILGPU;
+using ILGPU.Runtime;
 using Magimage.Filters.Helpers;
 using Magimage.Shaders.ColorMergePixelShaders;
-using Magimage.Shaders.Interfaces;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.Primitives;
+using System;
 
 namespace Magimage.Filters
 {
-    class ColorMergeFilter : IImageFilter
+    internal class ColorMergeFilter : IImageFilter
     {
         public Image<Rgba32> Image { get; private set; }
         public Image<Rgba32> SecondImage { get; private set; }
+        public float FirstimagePercent { get; private set; }
 
         public FullColorMergePixelShader Shader { get; private set; }
 
-        public ColorMergeFilter(Image<Rgba32> firstImage, Image<Rgba32> secondImage, FullColorMergePixelShader pixelShader)
+        public ColorMergeFilter(Image<Rgba32> firstImage, Image<Rgba32> secondImage, FullColorMergePixelShader pixelShader, float firstImagePercent)
         {
             CheckSizes(firstImage, secondImage);
 
             Image = firstImage;
             SecondImage = secondImage;
             Shader = pixelShader;
+            FirstimagePercent = firstImagePercent;
         }
 
-        public Image<Rgba32> PerformFilter(long flatIndex)
+        public Image<Rgba32> PerformFilter(Accelerator device)
         {
-            return PerformFilter(flatIndex, 0.5f);
-        }
+            CheckSizes(Image, SecondImage);
 
-        public Image<Rgba32> PerformFilter(long flatIndex, float firstColorPercent)
-        {
-            Point pixelPosition = flatIndex.GetPointByLinearIndex(Image.Height, Image.Width);
+            var kernel = device.LoadAutoGroupedStreamKernel<Index, ArrayView<Rgba32>, ArrayView<Rgba32>, float>
+                (Shader.PerformShading);
+            Index size = new Index(Image.Width * Image.Height);
 
-            Rgba32 rgbaFirstImagePixel = Image[pixelPosition.X, pixelPosition.Y];
-            Rgba32 rgbaSecondImagePixel = SecondImage[pixelPosition.X, pixelPosition.Y];
-            Image[pixelPosition.X, pixelPosition.Y] = Shader.PerformShading(rgbaFirstImagePixel, rgbaSecondImagePixel, firstColorPercent);
+            Rgba32[] pixelArray = Image.GetPixelSpan().ToArray();
 
-            return this.Image;
+            using (var firstImageBuffer = device.Allocate<Rgba32>(Image.Width * Image.Height))
+            {
+                firstImageBuffer.CopyFrom(pixelArray, 0, Index.Zero, pixelArray.Length);
+
+                using (var secondImageBuffer = device.Allocate<Rgba32>(SecondImage.Width * SecondImage.Height))
+                {
+                    secondImageBuffer.CopyFrom(pixelArray, 0, Index.Zero, pixelArray.Length);
+
+                    kernel(size, firstImageBuffer, secondImageBuffer, FirstimagePercent);
+                    device.Synchronize();
+
+                    pixelArray = firstImageBuffer.GetAsArray();
+
+                    Image = SixLabors.ImageSharp.Image.LoadPixelData<Rgba32>(pixelArray, Image.Width, Image.Height);
+                }
+            }
+
+            return Image;
         }
 
         private void CheckSizes(Image<Rgba32> firstImage, Image<Rgba32> secondImage)
@@ -53,5 +69,6 @@ namespace Magimage.Filters
                         $"Images should be equals or seconImage slould be bigger");
             }
         }
+
     }
 }

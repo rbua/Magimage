@@ -19,12 +19,11 @@ namespace Magimage
             Stopwatch sw = new Stopwatch();
             sw.Start();
 
-            var image = Image.Load(@"C:\Users\r_bon\Pictures\Camera Roll\other\iam.jpg");
-            var image2 = Image.Load(@"C:\Users\r_bon\Pictures\Camera Roll\other\sviat.jpg");
-
-            var pixelShader = new FullColorMergePixelShader();
-            var filter = new ColorMergeFilter(image, image2, pixelShader);
-            TaskBasedWorkflow workflow = new TaskBasedWorkflow();
+            var image = Image.Load(@"C:\Users\r_bon\Pictures\Camera Roll\testimage.jpg");
+            
+            var pixelShader = new BlueColorInversionPixelShader();
+            var filter = new NegativeFilter(image, pixelShader);
+            CpuBasedWorkflow workflow = new CpuBasedWorkflow();
             workflow.AddFilter(filter);
 
             using (FileStream fs = new FileStream(@"C:\Users\r_bon\Pictures\Camera Roll\resultimage.jpeg", FileMode.OpenOrCreate))

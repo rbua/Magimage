@@ -7,6 +7,6 @@ namespace Magimage.Shaders.Interfaces
 {
     interface IBlackAndWhitePixelShader : IPixelShader
     {
-        Rgba32 GetPixelBrighness(Rgba32 pixel);
+        // Here can be defined another members in the future
     }
 }

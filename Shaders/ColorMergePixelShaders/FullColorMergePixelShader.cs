@@ -1,4 +1,5 @@
-﻿using Magimage.Shaders.Interfaces;
+﻿using ILGPU;
+using Magimage.Shaders.Interfaces;
 using SixLabors.ImageSharp.PixelFormats;
 using System;
 using System.Collections.Generic;
@@ -6,17 +7,20 @@ using System.Text;
 
 namespace Magimage.Shaders.ColorMergePixelShaders
 {
-    class FullColorMergePixelShader
+    class FullColorMergePixelShader : IColorMergePixelShader
     {
-        public Rgba32 PerformShading(Rgba32 firstColor, Rgba32 secondColor, float firstColorPercent)
+        /// <summary>
+        /// Changes firstImage by merging pixels colors with corresponding pixel colors from second image
+        /// </summary>
+        public void PerformShading(Index index, ArrayView<Rgba32> firstImage, ArrayView<Rgba32> secondImage, float firstImageColorPercent)
         {
-            float secondColorPercent = 1.0f - firstColorPercent;
+            float secondColorPercent = 1.0f - firstImageColorPercent;
 
-            return new Rgba32
+            firstImage[index] = new Rgba32
             {
-                R = (byte)((firstColor.R * firstColorPercent) + (secondColor.R * secondColorPercent)),
-                G = (byte)((firstColor.G * firstColorPercent) + (secondColor.G * secondColorPercent)),
-                B = (byte)((firstColor.B * firstColorPercent) + (secondColor.B * secondColorPercent))
+                R = (byte)((firstImage[index].R * firstImageColorPercent) + (secondImage[index].R * secondColorPercent)),
+                G = (byte)((firstImage[index].G * firstImageColorPercent) + (secondImage[index].G * secondColorPercent)),
+                B = (byte)((firstImage[index].B * firstImageColorPercent) + (secondImage[index].B * secondColorPercent))
             };
         }
     }

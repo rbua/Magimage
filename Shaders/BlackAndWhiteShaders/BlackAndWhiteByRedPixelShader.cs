@@ -1,20 +1,16 @@
-﻿using Magimage.Shaders.Interfaces;
+﻿using ILGPU;
+using Magimage.Shaders.Interfaces;
 using SixLabors.ImageSharp.PixelFormats;
 
 namespace Magimage.Shaders
 {
     internal class BlackAndWhiteByRedPixelShader : IBlackAndWhitePixelShader
     {
-        public Rgba32 GetPixelBrighness(Rgba32 pixel)
+        public void PerformShading(Index index, ArrayView<Rgba32> image)
         {
-            return PerformShading(pixel);
-        }
+            byte pixelBrightness = image[index].R;
 
-        public Rgba32 PerformShading(Rgba32 pixel)
-        {
-            byte pixelBrightness = pixel.R;
-
-            return new Rgba32
+            image[index] = new Rgba32
             {
                 R = pixelBrightness,
                 G = pixelBrightness,

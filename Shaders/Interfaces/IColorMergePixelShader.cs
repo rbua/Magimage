@@ -1,12 +1,10 @@
-﻿using SixLabors.ImageSharp.PixelFormats;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using ILGPU;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace Magimage.Shaders.Interfaces
 {
-    interface IColorMergePixelShader : IPixelShader
+    interface IColorMergePixelShader
     {
-        Rgba32 PerformShading(Rgba32 firstColor, Rgba32 secondColor, float firstColorPercent);
+        void PerformShading(Index index, ArrayView<Rgba32> firstImage, ArrayView<Rgba32> secondImage, float firstImageColorPercent);
     }
 }

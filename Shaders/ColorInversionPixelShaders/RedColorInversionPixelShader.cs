@@ -1,12 +1,11 @@
 ﻿using ILGPU;
-using Magimage.Shaders.Interfaces;
 using SixLabors.ImageSharp.PixelFormats;
 
 namespace Magimage.Shaders.ColorInversionPixelShader
 {
-    class RedColorInversionPixelShader : IColorInversionPixelShader
+    public static class RedColorInversionPixelShader
     {
-        public void PerformShading(Index index, ArrayView<Rgba32> image)
+        public static void PerformShading(Index index, ArrayView<Rgba32> image)
         {
             image[index] = new Rgba32
             {

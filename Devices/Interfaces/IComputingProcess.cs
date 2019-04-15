@@ -1,5 +1,4 @@
 ﻿using Magimage.Filters;
-using Magimage.Shaders.Interfaces;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using System;

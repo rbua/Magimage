@@ -1,8 +1,8 @@
 ﻿using Magimage.Devices;
+using Magimage.Enums;
 using Magimage.Filters;
 using Magimage.Shaders.ColorInversionPixelShader;
 using Magimage.Shaders.ColorMergePixelShaders;
-using Magimage.Shaders.Interfaces;
 using SixLabors.ImageSharp;
 using System.Diagnostics;
 using System.IO;
@@ -21,8 +21,7 @@ namespace Magimage
 
             var image = Image.Load(@"C:\Users\r_bon\Pictures\Camera Roll\testimage.jpg");
             
-            var pixelShader = new BlueColorInversionPixelShader();
-            var filter = new NegativeFilter(image, pixelShader);
+            var filter = new BlackAndWhiteFilter(image, BlackAndWhitePixelShaderType.FullBlackAndWhite);
             CpuBasedWorkflow workflow = new CpuBasedWorkflow();
             workflow.AddFilter(filter);
 

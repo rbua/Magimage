@@ -1,5 +1,4 @@
 ﻿using ILGPU;
-using Magimage.Shaders.Interfaces;
 using SixLabors.ImageSharp.PixelFormats;
 using System;
 using System.Collections.Generic;
@@ -7,12 +6,12 @@ using System.Text;
 
 namespace Magimage.Shaders.ColorMergePixelShaders
 {
-    class FullColorMergePixelShader : IColorMergePixelShader
+    public static class FullColorMergePixelShader
     {
         /// <summary>
         /// Changes firstImage by merging pixels colors with corresponding pixel colors from second image
         /// </summary>
-        public void PerformShading(Index index, ArrayView<Rgba32> firstImage, ArrayView<Rgba32> secondImage, float firstImageColorPercent)
+        public static void PerformShading(Index index, ArrayView<Rgba32> firstImage, ArrayView<Rgba32> secondImage, float firstImageColorPercent)
         {
             float secondColorPercent = 1.0f - firstImageColorPercent;
 

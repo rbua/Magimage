@@ -1,26 +1,47 @@
 ﻿using ILGPU;
 using ILGPU.Runtime;
-using Magimage.Shaders.Interfaces;
+using Magimage.Enums;
+using Magimage.Shaders;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
+using System;
 
 namespace Magimage.Filters
 {
     internal class BlackAndWhiteFilter : IImageFilter
     {
         public Image<Rgba32> Image { get; protected set; }
-        public IPixelShader Shader { get; protected set; }
+        public BlackAndWhitePixelShaderType ShaderType { get; protected set; }
 
-        public BlackAndWhiteFilter(Image<Rgba32> image, IBlackAndWhitePixelShader shader)
+        public BlackAndWhiteFilter(Image<Rgba32> image, BlackAndWhitePixelShaderType shaderType)
         {
             Image = image;
-            Shader = shader;
+            ShaderType = shaderType;
         }
 
         public Image<Rgba32> PerformFilter(Accelerator device)
         {
-            var kernel = device.LoadAutoGroupedStreamKernel<Index, ArrayView<Rgba32>>(Shader.PerformShading);
+            Action<Index, ArrayView<Rgba32>> shadingPerformer = null;
+
+            switch (ShaderType)
+            {
+                case BlackAndWhitePixelShaderType.BlackAndWhiteByBlue:
+                    shadingPerformer = BlackAndWhiteByBluePixelShader.PerformShading;
+                    break;
+                case BlackAndWhitePixelShaderType.BlackAndWhiteByGreen:
+                    shadingPerformer = BlackAndWhiteByGreenPixelShader.PerformShading;
+                    break;
+                case BlackAndWhitePixelShaderType.BlackAndWhiteByRed:
+                    shadingPerformer = BlackAndWhiteByRedPixelShader.PerformShading;
+                    break;
+                case BlackAndWhitePixelShaderType.FullBlackAndWhite:
+                    shadingPerformer = BlackAndWhitePixelShader.PerformShading;
+                    break;
+            }
+
+
+            var kernel = device.LoadAutoGroupedStreamKernel<Index, ArrayView<Rgba32>>(shadingPerformer);
             Index size = new Index(Image.Width * Image.Height);
 
             Rgba32[] pixelArray = Image.GetPixelSpan().ToArray();

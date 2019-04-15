@@ -1,12 +1,11 @@
 ﻿using ILGPU;
-using Magimage.Shaders.Interfaces;
 using SixLabors.ImageSharp.PixelFormats;
 
 namespace Magimage.Shaders
 {
-    internal class BlackAndWhiteByBluePixelShader : IBlackAndWhitePixelShader
+    internal class BlackAndWhiteByBluePixelShader
     {
-        public void PerformShading(Index index, ArrayView<Rgba32> image)
+        public static void PerformShading(Index index, ArrayView<Rgba32> image)
         {
             byte pixelBrightness = image[index].B;
 

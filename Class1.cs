@@ -4,6 +4,7 @@ using Magimage.Filters;
 using Magimage.Shaders.ColorInversionPixelShader;
 using Magimage.Shaders.ColorMergePixelShaders;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 using System.Diagnostics;
 using System.IO;
 
@@ -13,24 +14,18 @@ namespace Magimage
     {
         public static void DoSomething()
         {
-            System.Console.WriteLine("Start");
-            System.Console.ReadLine();
-
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
-
             var image = Image.Load(@"C:\Users\r_bon\Pictures\Camera Roll\testimage.jpg");
-            
-            var filter = new BlackAndWhiteFilter(image, BlackAndWhitePixelShaderType.FullBlackAndWhite);
-            CpuBasedWorkflow workflow = new CpuBasedWorkflow();
-            workflow.AddFilter(filter);
 
-            using (FileStream fs = new FileStream(@"C:\Users\r_bon\Pictures\Camera Roll\resultimage.jpeg", FileMode.OpenOrCreate))
+            var filter = new ColoredFrameFilter(image, ImageFrameType.Circle, new Rgba32(255,0,0,0), 500);
+
+            //var filter = new NegativeFilter(image, ColorInversionPixelShaderType.ColorInversionByGreen);
+            CpuBasedWorkflow workflow = new CpuBasedWorkflow();
+            image = workflow.AddFilter(filter);
+
+            using (FileStream fs = new FileStream(@"C:\Users\r_bon\Pictures\Camera Roll\resultimage.png", FileMode.OpenOrCreate))
             {
-                image.SaveAsJpeg(fs);
+                image.SaveAsPng(fs);
             }
-            System.Console.WriteLine($"Done in {sw.ElapsedMilliseconds}");
-            System.Console.ReadLine();
         }
     }
 }

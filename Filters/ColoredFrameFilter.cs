@@ -2,42 +2,42 @@
 using ILGPU.Runtime;
 using Magimage.Enums;
 using Magimage.Shaders.ColorInversionPixelShader;
+using Magimage.Shaders.FrameSHaders;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.Primitives;
 using System;
 
 namespace Magimage.Filters
 {
-    class NegativeFilter : IImageFilter
+    class ColoredFrameFilter : IImageFilter
     {
         public Image<Rgba32> Image { get; private set; }
-        public ColorInversionPixelShaderType ShaderType { get; private set; }
+        public ImageFrameType ShaderType { get; private set; }
+        public Rgba32 FrameColor { get; private set; }
+        public int Radius { get; private set; }
 
-        public NegativeFilter(Image<Rgba32> image, ColorInversionPixelShaderType shaderType)
+
+        public ColoredFrameFilter(Image<Rgba32> image, ImageFrameType shaderType, Rgba32 frameColor, int radius)
         {
             Image = image;
             ShaderType = shaderType;
+            FrameColor = frameColor;
+            Radius = radius;
         }
 
-        public Action<Index, ArrayView<Rgba32>> GetShadingPerformer()
+        public Action<Index, ArrayView<Rgba32>, Rgba32, int, Size> GetShadingPerformer()
         {
-            Action<Index, ArrayView<Rgba32>> shadingPerformer = null;
+            Action<Index, ArrayView<Rgba32>, Rgba32, int, Size> shadingPerformer = null;
 
             switch (ShaderType)
             {
-                case ColorInversionPixelShaderType.ColorInversionByBlue:
-                    shadingPerformer = BlueColorInversionPixelShader.PerformShading;
+                case ImageFrameType.Circle:
+                    shadingPerformer = CircleFramePixelShader.PerformShading;
                     break;
-                case ColorInversionPixelShaderType.ColorInversionByGreen:
-                    shadingPerformer = GreenColorInversionPixelShader.PerformShading;
-                    break;
-                case ColorInversionPixelShaderType.ColorInversionByRed:
-                    shadingPerformer = RedColorInversionPixelShader.PerformShading;
-                    break;
-                case ColorInversionPixelShaderType.FullInversionByBlue:
-                    shadingPerformer = FullColorInversionPixelShader.PerformShading;
-                    break;
+                default:
+                    throw new ArgumentOutOfRangeException($"{ShaderType} is not allowed shader type");
             }
 
             return shadingPerformer;
@@ -56,7 +56,7 @@ namespace Magimage.Filters
             {
                 buffer.CopyFrom(pixelArray, 0, Index.Zero, pixelArray.Length);
 
-                kernel(size, buffer);
+                kernel(size, buffer, FrameColor, Radius, new Size(Image.Width, Image.Height));
                 device.Synchronize();
 
                 pixelArray = buffer.GetAsArray();

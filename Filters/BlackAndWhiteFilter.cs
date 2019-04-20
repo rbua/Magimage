@@ -41,7 +41,7 @@ namespace Magimage.Filters
             }
 
 
-            var kernel = device.LoadAutoGroupedStreamKernel<Index, ArrayView<Rgba32>>(shadingPerformer);
+            var kernel = device.LoadAutoGroupedStreamKernel(shadingPerformer);
             Index size = new Index(Image.Width * Image.Height);
 
             Rgba32[] pixelArray = Image.GetPixelSpan().ToArray();
@@ -53,9 +53,9 @@ namespace Magimage.Filters
                 kernel(size, buffer);
                 device.Synchronize();
 
-                pixelArray = buffer.GetAsArray();
+                var resultPixelArray = buffer.GetAsArray();
                 
-                Image = SixLabors.ImageSharp.Image.LoadPixelData<Rgba32>(pixelArray, Image.Width, Image.Height);
+                Image = SixLabors.ImageSharp.Image.LoadPixelData(resultPixelArray, Image.Width, Image.Height);
             }
 
             return Image;

@@ -9,6 +9,6 @@ namespace Magimage.Devices.Interfaces
 {
     public interface IComputingProcess
     {
-        void AddFilter(IImageFilter filter);
+        Image<Rgba32> AddFilter(IImageFilter filter);
     }
 }

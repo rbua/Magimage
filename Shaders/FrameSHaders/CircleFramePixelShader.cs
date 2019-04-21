@@ -2,7 +2,7 @@
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.Primitives;
 
-namespace Magimage.Shaders.FrameSHaders
+namespace Magimage.Shaders.FrameShaders
 {
     public static class CircleFramePixelShader
     {

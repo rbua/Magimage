@@ -1,40 +1,40 @@
 ﻿using ILGPU;
 using ILGPU.Runtime;
 using Magimage.Enums;
-using Magimage.Shaders.ColorInversionPixelShader;
-using Magimage.Shaders.FrameShaders;
+using Magimage.Shaders.BlurShaders;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.Primitives;
 using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace Magimage.Filters
 {
-    class ColoredFrameFilter : IImageFilter
+    public class GauissianBlurFilter : IImageFilter
     {
         public Image<Rgba32> Image { get; private set; }
-        public ImageFrameType ShaderType { get; private set; }
-        public Rgba32 FrameColor { get; private set; }
+        public GauissianBlurType ShaderType { get; private set; }
         public int Radius { get; private set; }
+        public float SimplificationPercent { get; private set; }
 
-
-        public ColoredFrameFilter(Image<Rgba32> image, ImageFrameType shaderType, Rgba32 frameColor, int radius)
+        public GauissianBlurFilter(Image<Rgba32> image, GauissianBlurType shaderType, int radius, float simplificationPercent = 0f)
         {
             Image = image;
             ShaderType = shaderType;
-            FrameColor = frameColor;
             Radius = radius;
+            SimplificationPercent = simplificationPercent;
         }
 
-        public Action<Index, ArrayView<Rgba32>, Rgba32, int, Size> GetShadingPerformer()
+        public Action<Index, ArrayView<Rgba32>, int, Size> GetShadingPerformer()
         {
-            Action<Index, ArrayView<Rgba32>, Rgba32, int, Size> shadingPerformer = null;
+            Action<Index, ArrayView<Rgba32>, int, Size> shadingPerformer = null;
 
             switch (ShaderType)
             {
-                case ImageFrameType.Circle:
-                    shadingPerformer = CircleFramePixelShader.PerformShading;
+                case GauissianBlurType.SimleGaussianBlur:
+                    shadingPerformer = GauissianBlurPixelShader.PerformShading;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException($"{ShaderType} is not allowed shader type");
@@ -48,15 +48,15 @@ namespace Magimage.Filters
             var shadingPerformer = GetShadingPerformer();
 
             var kernel = device.LoadAutoGroupedStreamKernel(shadingPerformer);
-            Index size = new Index(Image.Width * Image.Height);
+            Index linearSize = new Index(Image.Width * Image.Height);
 
             Rgba32[] pixelArray = Image.GetPixelSpan().ToArray();
 
-            using (var buffer = device.Allocate<Rgba32>(Image.Width * Image.Height))
+            using (var buffer = device.Allocate<Rgba32>(linearSize))
             {
                 buffer.CopyFrom(pixelArray, 0, Index.Zero, pixelArray.Length);
 
-                kernel(size, buffer, FrameColor, Radius, new Size(Image.Width, Image.Height));
+                kernel(linearSize, buffer, Radius, new Size(Image.Width, Image.Height));
                 device.Synchronize();
 
                 pixelArray = buffer.GetAsArray();

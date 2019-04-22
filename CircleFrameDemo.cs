@@ -26,7 +26,7 @@ namespace Magimage
             // Here you can select only one shader type - ImageFrameType.Circle
             var filter = new ColoredFrameFilter(image, ImageFrameType.Circle, new Rgba32(255,255,255), radius);
 
-            CpuBasedWorkflow workflow = new CpuBasedWorkflow();
+            AdaptiveWorkflow workflow = new AdaptiveWorkflow();
             image = workflow.AddFilter(filter);
 
             using (FileStream fs = new FileStream(@"C:\Users\r_bon\Pictures\Camera Roll\" + Guid.NewGuid() + ".png", FileMode.OpenOrCreate))

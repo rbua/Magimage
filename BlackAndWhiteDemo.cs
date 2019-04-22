@@ -18,7 +18,7 @@ namespace Magimage
             // Here you can select any pixel shader type in BlackAndWhitePixelShaderType enum
             var filter = new BlackAndWhiteFilter(image, BlackAndWhitePixelShaderType.FullBlackAndWhite);
 
-            CpuBasedWorkflow workflow = new CpuBasedWorkflow();
+            AdaptiveWorkflow workflow = new AdaptiveWorkflow();
             image = workflow.AddFilter(filter);
 
             using (FileStream fs = new FileStream(@"C:\Users\r_bon\Pictures\Camera Roll\" + Guid.NewGuid() + ".png", FileMode.OpenOrCreate))

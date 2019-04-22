@@ -2,12 +2,9 @@
 using ILGPU.Runtime;
 using Magimage.Devices.Interfaces;
 using Magimage.Filters;
-using Magimage.Filters.Helpers;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
-using System;
 using System.Linq;
-using System.Threading;
 
 namespace Magimage.Devices
 {
